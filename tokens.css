@@ -1,6 +1,9 @@
-/* Design tokens shared by popup.html and options.html — a "briefing" system:
-   Fraunces for the wordmark/section titles, Public Sans for UI text and
-   controls, IBM Plex Mono for version tags and other tabular/data bits. */
+/* Design tokens shared by popup.html, options.html, and the on-page panel.
+   Two selectable "looks", each with its own light/dark palette:
+     - linkedin  (default): LinkedIn's own blue/white/pill-button language
+     - editorial: the original serif + brass "briefing" look
+   Selection is via [data-style] on <html>, set from Settings > Appearance.
+   Light/dark is via [data-theme] (explicit) or prefers-color-scheme (auto). */
 
 @font-face {
   font-family: "Fraunces";
@@ -52,60 +55,48 @@
   src: url("fonts/ibm-plex-mono-500.woff2") format("woff2");
 }
 
+/* ---------- LinkedIn look (default) — light ---------- */
 :root {
-  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
-  --font-body: "Public Sans", -apple-system, "Segoe UI", sans-serif;
+  --font-display: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-body: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
 
-  --ink: #151c2c;
-  --ink-soft: #545b6b;
-  --ink-faint: #8a90a0;
-  --paper: #f4f5f7;
+  --ink: rgba(0, 0, 0, 0.9);
+  --ink-soft: rgba(0, 0, 0, 0.6);
+  --ink-faint: rgba(0, 0, 0, 0.35);
+  --paper: #f4f2ee;
   --surface: #ffffff;
-  --line: #dde0e6;
-  --accent: #b8792a;
-  --accent-strong: #96611f;
-  --accent-ink: #fffaf1;
-  --success: #2f7a54;
-  --danger: #b23b32;
-  --danger-bg: #fbeceb;
+  --line: #dcdad5;
+  --accent: #0a66c2;
+  --accent-strong: #004182;
+  --accent-ink: #ffffff;
+  --success: #057642;
+  --danger: #b7472a;
+  --danger-bg: #fbe9e5;
+
+  --wordmark-weight: 700;
+  --eyebrow-style: normal;
+  --eyebrow-weight: 700;
+  --eyebrow-transform: uppercase;
+  --eyebrow-tracking: 0.07em;
+  --eyebrow-size-adjust: -1px;
+  --btn-radius: 22px;
+  --input-radius: 6px;
 
   color-scheme: light dark;
 }
 
+/* ---------- LinkedIn look — dark ---------- */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --ink: #e9eaee;
-    --ink-soft: #a7adbb;
-    --ink-faint: #6a7182;
-    --paper: #10131b;
-    --surface: #181c26;
-    --line: #2a2f3c;
-    --accent: #e0a94a;
-    --accent-strong: #f0bd66;
-    --accent-ink: #1b1305;
-    --success: #4ca478;
-    --danger: #e0685c;
-    --danger-bg: #2c1917;
-  }
+  :root { --ink: rgba(255,255,255,0.9); --ink-soft: rgba(255,255,255,0.6); --ink-faint: rgba(255,255,255,0.35); --paper: #1d2226; --surface: #000000; --line: #38434f; --accent: #6fb2f1; --accent-strong: #a6d1fb; --accent-ink: #06253c; --success: #3da35d; --danger: #e2695a; --danger-bg: #2c1917; }
 }
+:root[data-theme="dark"] { --ink: rgba(255,255,255,0.9); --ink-soft: rgba(255,255,255,0.6); --ink-faint: rgba(255,255,255,0.35); --paper: #1d2226; --surface: #000000; --line: #38434f; --accent: #6fb2f1; --accent-strong: #a6d1fb; --accent-ink: #06253c; --success: #3da35d; --danger: #e2695a; --danger-bg: #2c1917; }
+:root[data-theme="light"] { --ink: rgba(0,0,0,0.9); --ink-soft: rgba(0,0,0,0.6); --ink-faint: rgba(0,0,0,0.35); --paper: #f4f2ee; --surface: #ffffff; --line: #dcdad5; --accent: #0a66c2; --accent-strong: #004182; --accent-ink: #ffffff; --success: #057642; --danger: #b7472a; --danger-bg: #fbe9e5; }
 
-:root[data-theme="dark"] {
-  --ink: #e9eaee;
-  --ink-soft: #a7adbb;
-  --ink-faint: #6a7182;
-  --paper: #10131b;
-  --surface: #181c26;
-  --line: #2a2f3c;
-  --accent: #e0a94a;
-  --accent-strong: #f0bd66;
-  --accent-ink: #1b1305;
-  --success: #4ca478;
-  --danger: #e0685c;
-  --danger-bg: #2c1917;
-}
-
-:root[data-theme="light"] {
+/* ---------- Editorial look — light ---------- */
+:root[data-style="editorial"] {
+  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --font-body: "Public Sans", -apple-system, "Segoe UI", sans-serif;
   --ink: #151c2c;
   --ink-soft: #545b6b;
   --ink-faint: #8a90a0;
@@ -118,4 +109,20 @@
   --success: #2f7a54;
   --danger: #b23b32;
   --danger-bg: #fbeceb;
+
+  --wordmark-weight: 600;
+  --eyebrow-style: italic;
+  --eyebrow-weight: 600;
+  --eyebrow-transform: none;
+  --eyebrow-tracking: 0;
+  --eyebrow-size-adjust: 1px;
+  --btn-radius: 7px;
+  --input-radius: 6px;
 }
+
+/* ---------- Editorial look — dark ---------- */
+@media (prefers-color-scheme: dark) {
+  :root[data-style="editorial"] { --ink: #e9eaee; --ink-soft: #a7adbb; --ink-faint: #6a7182; --paper: #10131b; --surface: #181c26; --line: #2a2f3c; --accent: #e0a94a; --accent-strong: #f0bd66; --accent-ink: #1b1305; --success: #4ca478; --danger: #e0685c; --danger-bg: #2c1917; }
+}
+:root[data-style="editorial"][data-theme="dark"] { --ink: #e9eaee; --ink-soft: #a7adbb; --ink-faint: #6a7182; --paper: #10131b; --surface: #181c26; --line: #2a2f3c; --accent: #e0a94a; --accent-strong: #f0bd66; --accent-ink: #1b1305; --success: #4ca478; --danger: #e0685c; --danger-bg: #2c1917; }
+:root[data-style="editorial"][data-theme="light"] { --ink: #151c2c; --ink-soft: #545b6b; --ink-faint: #8a90a0; --paper: #f4f5f7; --surface: #ffffff; --line: #dde0e6; --accent: #b8792a; --accent-strong: #96611f; --accent-ink: #fffaf1; --success: #2f7a54; --danger: #b23b32; --danger-bg: #fbeceb; }

@@ -19,7 +19,7 @@ body {
 }
 .wordmark {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--wordmark-weight);
   font-size: 16px;
   color: var(--ink);
 }
@@ -72,9 +72,11 @@ body {
 }
 .eyebrow {
   font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 12px;
-  font-style: italic;
+  font-weight: var(--eyebrow-weight);
+  font-size: calc(12px + var(--eyebrow-size-adjust));
+  font-style: var(--eyebrow-style);
+  text-transform: var(--eyebrow-transform);
+  letter-spacing: var(--eyebrow-tracking);
   color: var(--accent-strong);
   white-space: nowrap;
 }
@@ -102,7 +104,7 @@ textarea, select {
   color: var(--ink);
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: var(--input-radius);
   resize: vertical;
 }
 textarea:focus, select:focus {
@@ -130,7 +132,7 @@ textarea::placeholder { color: var(--ink-faint); }
   font-weight: 600;
   font-size: 12.5px;
   cursor: pointer;
-  border-radius: 7px;
+  border-radius: var(--btn-radius);
   padding: 9px 14px;
 }
 

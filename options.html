@@ -5,6 +5,7 @@
   <title>LinkedIn Copilot — Settings</title>
   <link rel="stylesheet" href="tokens.css" />
   <link rel="stylesheet" href="options.css" />
+  <script src="theme.js"></script>
 </head>
 <body>
   <header class="masthead">
@@ -13,6 +14,28 @@
   </header>
 
   <div id="errorBanner" class="flag flag-danger" hidden role="alert"></div>
+
+  <section class="rail-section">
+    <div class="rail-heading"><span class="eyebrow">Appearance</span></div>
+    <p class="section-note">Changes apply immediately, across the popup, this page, and the panel on LinkedIn.</p>
+    <div class="appearance-row">
+      <div class="field">
+        <label for="themeStyle">Look</label>
+        <select id="themeStyle">
+          <option value="linkedin">LinkedIn (blue &amp; white)</option>
+          <option value="editorial">Editorial (serif &amp; brass)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="themeMode">Mode</label>
+        <select id="themeMode">
+          <option value="auto">Match system</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+    </div>
+  </section>
 
   <section class="rail-section">
     <div class="rail-heading"><span class="eyebrow">Connection</span></div>

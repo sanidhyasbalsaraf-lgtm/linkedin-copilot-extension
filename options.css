@@ -19,7 +19,7 @@ body {
 }
 .wordmark {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: var(--wordmark-weight);
   font-size: 22px;
   color: var(--ink);
 }
@@ -56,9 +56,11 @@ body {
 }
 .eyebrow {
   font-family: var(--font-display);
-  font-weight: 600;
-  font-style: italic;
-  font-size: 15px;
+  font-weight: var(--eyebrow-weight);
+  font-style: var(--eyebrow-style);
+  text-transform: var(--eyebrow-transform);
+  letter-spacing: var(--eyebrow-tracking);
+  font-size: calc(15px + var(--eyebrow-size-adjust));
   color: var(--accent-strong);
   white-space: nowrap;
 }
@@ -97,7 +99,7 @@ input, textarea, select {
   color: var(--ink);
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 7px;
+  border-radius: var(--input-radius);
   resize: vertical;
 }
 input:focus, textarea:focus, select:focus {
@@ -117,7 +119,7 @@ input:focus, textarea:focus, select:focus {
   font-weight: 600;
   font-size: 13.5px;
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: var(--btn-radius);
   padding: 10px 22px;
   background: var(--accent);
   color: var(--accent-ink);
@@ -130,6 +132,12 @@ input:focus, textarea:focus, select:focus {
   color: var(--success);
   font-weight: 600;
 }
+
+.appearance-row {
+  display: flex;
+  gap: 14px;
+}
+.appearance-row .field { flex: 1; }
 
 :focus-visible {
   outline: 2px solid var(--accent);

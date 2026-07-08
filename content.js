@@ -179,6 +179,33 @@ function findAnchorForButton() {
   ]);
 }
 
+const INLINE_BTN_COLORS = {
+  linkedin: { border: "#0a66c2", text: "#004182", hoverBg: "#0a66c2", hoverText: "#ffffff" },
+  editorial: { border: "#b8792a", text: "#96611f", hoverBg: "#b8792a", hoverText: "#fffaf1" }
+};
+
+let inlineBtnStyle = "linkedin";
+
+function paintCaptureButton(btn) {
+  const colors = INLINE_BTN_COLORS[inlineBtnStyle] || INLINE_BTN_COLORS.linkedin;
+  btn.style.color = colors.text;
+  btn.style.borderColor = colors.border;
+  btn.dataset.hoverBg = colors.hoverBg;
+  btn.dataset.hoverText = colors.hoverText;
+}
+
+chrome.storage.local.get(["themeStyle"], (data) => {
+  inlineBtnStyle = data.themeStyle || "linkedin";
+  const existing = document.getElementById(CAPTURE_BTN_ID);
+  if (existing) paintCaptureButton(existing);
+});
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area !== "local" || !changes.themeStyle) return;
+  inlineBtnStyle = changes.themeStyle.newValue || "linkedin";
+  const existing = document.getElementById(CAPTURE_BTN_ID);
+  if (existing) paintCaptureButton(existing);
+});
+
 function captureNow(btn, label) {
   const jd = extractJobDescription();
   const hm = extractHiringManager();
@@ -224,8 +251,7 @@ function injectCaptureButton() {
     "margin:10px 0",
     "padding:6px 14px",
     "background:transparent",
-    "color:#96611f",
-    "border:1px solid #b8792a",
+    "border:1px solid",
     "border-radius:7px",
     "font-size:12.5px",
     "font-weight:600",
@@ -234,13 +260,14 @@ function injectCaptureButton() {
     "z-index:1",
     "transition:background 0.12s ease, color 0.12s ease"
   ].join(";");
+  paintCaptureButton(btn);
   btn.addEventListener("mouseenter", () => {
-    btn.style.background = "#b8792a";
-    btn.style.color = "#fffaf1";
+    btn.style.background = btn.dataset.hoverBg;
+    btn.style.color = btn.dataset.hoverText;
   });
   btn.addEventListener("mouseleave", () => {
     btn.style.background = "transparent";
-    btn.style.color = "#96611f";
+    paintCaptureButton(btn);
   });
   btn.addEventListener("click", () => captureNow(btn, label));
 
@@ -269,29 +296,47 @@ function fontUrl(file) {
 }
 
 const PANEL_STYLE = `
-  @font-face { font-family: "Fraunces LC"; font-weight: 600; font-style: italic; src: url("${fontUrl("fraunces-600.woff2")}") format("woff2"); }
+  @font-face { font-family: "Fraunces LC"; font-weight: 600; font-style: normal; src: url("${fontUrl("fraunces-600.woff2")}") format("woff2"); }
   @font-face { font-family: "Public Sans LC"; font-weight: 400; src: url("${fontUrl("public-sans-400.woff2")}") format("woff2"); }
   @font-face { font-family: "Public Sans LC"; font-weight: 500; src: url("${fontUrl("public-sans-500.woff2")}") format("woff2"); }
   @font-face { font-family: "Public Sans LC"; font-weight: 600; src: url("${fontUrl("public-sans-600.woff2")}") format("woff2"); }
   @font-face { font-family: "IBM Plex Mono LC"; font-weight: 500; src: url("${fontUrl("ibm-plex-mono-500.woff2")}") format("woff2"); }
 
   :host {
+    /* LinkedIn look (default) — light */
+    --ink: rgba(0,0,0,0.9); --ink-soft: rgba(0,0,0,0.6); --ink-faint: rgba(0,0,0,0.35);
+    --paper: #f4f2ee; --surface: #ffffff; --line: #dcdad5;
+    --accent: #0a66c2; --accent-strong: #004182; --accent-ink: #ffffff;
+    --danger: #b7472a; --danger-bg: #fbe9e5;
+    --font-display: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    --font-body: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "IBM Plex Mono LC", ui-monospace, Consolas, monospace;
+    --wordmark-weight: 700;
+    --eyebrow-style: normal; --eyebrow-weight: 700; --eyebrow-transform: uppercase; --eyebrow-tracking: 0.07em; --eyebrow-size-adjust: -1px;
+    --btn-radius: 22px; --input-radius: 6px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :host { --ink: rgba(255,255,255,0.9); --ink-soft: rgba(255,255,255,0.6); --ink-faint: rgba(255,255,255,0.35); --paper: #1d2226; --surface: #000000; --line: #38434f; --accent: #6fb2f1; --accent-strong: #a6d1fb; --accent-ink: #06253c; --danger: #e2695a; --danger-bg: #2c1917; }
+  }
+  :host([data-theme="dark"]) { --ink: rgba(255,255,255,0.9); --ink-soft: rgba(255,255,255,0.6); --ink-faint: rgba(255,255,255,0.35); --paper: #1d2226; --surface: #000000; --line: #38434f; --accent: #6fb2f1; --accent-strong: #a6d1fb; --accent-ink: #06253c; --danger: #e2695a; --danger-bg: #2c1917; }
+  :host([data-theme="light"]) { --ink: rgba(0,0,0,0.9); --ink-soft: rgba(0,0,0,0.6); --ink-faint: rgba(0,0,0,0.35); --paper: #f4f2ee; --surface: #ffffff; --line: #dcdad5; --accent: #0a66c2; --accent-strong: #004182; --accent-ink: #ffffff; --danger: #b7472a; --danger-bg: #fbe9e5; }
+
+  :host([data-style="editorial"]) {
     --ink: #151c2c; --ink-soft: #545b6b; --ink-faint: #8a90a0;
     --paper: #f4f5f7; --surface: #ffffff; --line: #dde0e6;
     --accent: #b8792a; --accent-strong: #96611f; --accent-ink: #fffaf1;
     --danger: #b23b32; --danger-bg: #fbeceb;
     --font-display: "Fraunces LC", Georgia, serif;
     --font-body: "Public Sans LC", -apple-system, "Segoe UI", sans-serif;
-    --font-mono: "IBM Plex Mono LC", ui-monospace, Consolas, monospace;
+    --wordmark-weight: 600;
+    --eyebrow-style: italic; --eyebrow-weight: 600; --eyebrow-transform: none; --eyebrow-tracking: 0; --eyebrow-size-adjust: 1px;
+    --btn-radius: 7px; --input-radius: 6px;
   }
   @media (prefers-color-scheme: dark) {
-    :host {
-      --ink: #e9eaee; --ink-soft: #a7adbb; --ink-faint: #6a7182;
-      --paper: #10131b; --surface: #181c26; --line: #2a2f3c;
-      --accent: #e0a94a; --accent-strong: #f0bd66; --accent-ink: #1b1305;
-      --danger: #e0685c; --danger-bg: #2c1917;
-    }
+    :host([data-style="editorial"]) { --ink: #e9eaee; --ink-soft: #a7adbb; --ink-faint: #6a7182; --paper: #10131b; --surface: #181c26; --line: #2a2f3c; --accent: #e0a94a; --accent-strong: #f0bd66; --accent-ink: #1b1305; --danger: #e0685c; --danger-bg: #2c1917; }
   }
+  :host([data-style="editorial"][data-theme="dark"]) { --ink: #e9eaee; --ink-soft: #a7adbb; --ink-faint: #6a7182; --paper: #10131b; --surface: #181c26; --line: #2a2f3c; --accent: #e0a94a; --accent-strong: #f0bd66; --accent-ink: #1b1305; --danger: #e0685c; --danger-bg: #2c1917; }
+  :host([data-style="editorial"][data-theme="light"]) { --ink: #151c2c; --ink-soft: #545b6b; --ink-faint: #8a90a0; --paper: #f4f5f7; --surface: #ffffff; --line: #dde0e6; --accent: #b8792a; --accent-strong: #96611f; --accent-ink: #fffaf1; --danger: #b23b32; --danger-bg: #fbeceb; }
 
   * { box-sizing: border-box; font-family: var(--font-body); }
 
@@ -299,7 +344,7 @@ const PANEL_STYLE = `
     width: 52px; height: 52px; border-radius: 50%;
     background: var(--accent); color: var(--accent-ink);
     border: none; cursor: pointer;
-    font-family: var(--font-display); font-size: 17px; font-style: italic;
+    font-family: var(--font-display); font-weight: var(--wordmark-weight); font-size: 15px;
     box-shadow: 0 6px 20px rgba(20, 15, 5, 0.35);
   }
   .fab:hover { background: var(--accent-strong); }
@@ -315,7 +360,7 @@ const PANEL_STYLE = `
     display: flex; align-items: baseline; justify-content: space-between;
     padding-bottom: 10px; margin-bottom: 12px; border-bottom: 1px solid var(--line);
   }
-  .wordmark { font-family: var(--font-display); font-weight: 600; font-size: 15.5px; }
+  .wordmark { font-family: var(--font-display); font-weight: var(--wordmark-weight); font-size: 15.5px; }
   .version { font-family: var(--font-mono); font-weight: 500; font-size: 9.5px; color: var(--ink-faint); margin-left: 4px; }
   .close {
     background: none; border: none; font-size: 14px; cursor: pointer;
@@ -330,7 +375,11 @@ const PANEL_STYLE = `
 
   .rail-heading { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; }
   .rail-heading::after { content: ""; flex: 1; height: 1px; background: var(--line); }
-  .eyebrow { font-family: var(--font-display); font-weight: 600; font-style: italic; font-size: 12px; color: var(--accent-strong); white-space: nowrap; }
+  .eyebrow {
+    font-family: var(--font-display); font-weight: var(--eyebrow-weight); font-style: var(--eyebrow-style);
+    text-transform: var(--eyebrow-transform); letter-spacing: var(--eyebrow-tracking);
+    font-size: calc(12px + var(--eyebrow-size-adjust)); color: var(--accent-strong); white-space: nowrap;
+  }
 
   .field { margin-bottom: 10px; }
   .row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
@@ -338,7 +387,7 @@ const PANEL_STYLE = `
 
   textarea, select {
     width: 100%; padding: 7px 8px; font-size: 12px; color: var(--ink);
-    background: var(--surface); border: 1px solid var(--line); border-radius: 6px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--input-radius);
     resize: vertical; font-family: var(--font-body);
   }
   textarea:focus, select:focus {
@@ -353,7 +402,7 @@ const PANEL_STYLE = `
   }
   .link-btn:hover { color: var(--accent-strong); border-bottom-color: var(--accent-strong); }
 
-  button { font-weight: 600; font-size: 12.5px; cursor: pointer; border-radius: 7px; padding: 9px 14px; }
+  button { font-weight: 600; font-size: 12.5px; cursor: pointer; border-radius: var(--btn-radius); padding: 9px 14px; }
   .generate {
     width: 100%; background: var(--accent); color: var(--accent-ink); border: 1px solid var(--accent);
   }
@@ -461,6 +510,32 @@ function buildPanel() {
   const style = document.createElement("style");
   style.textContent = PANEL_STYLE;
   shadow.appendChild(style);
+
+  function applyPanelTheme(themeStyle, themeMode) {
+    if (themeStyle === "editorial") {
+      host.setAttribute("data-style", "editorial");
+    } else {
+      host.removeAttribute("data-style");
+    }
+    if (themeMode === "light" || themeMode === "dark") {
+      host.setAttribute("data-theme", themeMode);
+    } else {
+      host.removeAttribute("data-theme");
+    }
+  }
+
+  function loadPanelTheme() {
+    chrome.storage.local.get(["themeStyle", "themeMode"], (data) => {
+      applyPanelTheme(data.themeStyle || "linkedin", data.themeMode || "auto");
+    });
+  }
+
+  loadPanelTheme();
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "local" && (changes.themeStyle || changes.themeMode)) {
+      loadPanelTheme();
+    }
+  });
 
   const toggleBtn = document.createElement("button");
   toggleBtn.className = "fab";

@@ -53,8 +53,11 @@ Either way, the flow is:
 - There is no official LinkedIn messaging API; the "Insert into LinkedIn"
   button works by finding the message/connection-note box already open in the
   page and typing into it, the same as a user would.
-- The popup, Settings page, and on-page panel share one visual system:
-  Fraunces (serif, section labels/wordmark) + Public Sans (UI text) + IBM
-  Plex Mono (version tag), a warm brass accent, and light/dark palettes that
-  follow your OS theme. Font files live in `fonts/` and are loaded locally —
-  no external requests at runtime.
+- **Appearance is customizable.** In Settings > Appearance, choose a **Look**
+  ("LinkedIn" — blue/white, pill buttons, matches LinkedIn's own palette; or
+  "Editorial" — the original serif + brass design) and a **Mode** (match
+  system / light / dark). Changes apply instantly across the popup, Settings
+  page, and the on-page panel — they all read the same saved preference and
+  update live via `chrome.storage.onChanged`. "LinkedIn" is the default look.
+- Font files live in `fonts/` and are loaded locally — no external requests
+  at runtime, in either look.
