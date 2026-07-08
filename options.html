@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>LinkedIn Copilot — Settings</title>
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <h1>LinkedIn Copilot — Settings <span id="version" class="version"></span></h1>
+  <div id="errorBanner" class="error-banner" hidden></div>
+
+  <section>
+    <h2>OpenAI API</h2>
+    <label for="apiKey">OpenAI API key</label>
+    <input type="password" id="apiKey" placeholder="sk-proj-..." />
+    <p class="hint">Stored locally in your browser only — never sent anywhere except api.openai.com. Get a key at platform.openai.com/api-keys. Treat this key like a password: never paste it into a chat window or commit it to a file.</p>
+
+    <label for="model">Model</label>
+    <input type="text" id="model" placeholder="gpt-4o" />
+  </section>
+
+  <section>
+    <h2>Your background</h2>
+    <label for="background">Short summary of your profile / target roles</label>
+    <textarea id="background" rows="4" placeholder="e.g. HR & Project Management professional, MSc Management (Leeds), targeting HR/PM/Strategy roles in UK and India..."></textarea>
+  </section>
+
+  <section>
+    <h2>Your writing style</h2>
+    <label for="samples">Paste 3-5 real messages/emails you've written before</label>
+    <textarea id="samples" rows="8" placeholder="Paste past outreach messages, cover letter snippets, or emails here — separate each with a blank line."></textarea>
+
+    <label for="tone">Tone</label>
+    <select id="tone">
+      <option value="warm and professional">Warm and professional</option>
+      <option value="formal and concise">Formal and concise</option>
+      <option value="direct and confident">Direct and confident</option>
+      <option value="friendly and conversational">Friendly and conversational</option>
+    </select>
+
+    <label for="notes">Anything else about your style (dos/don'ts)</label>
+    <textarea id="notes" rows="3" placeholder="e.g. keep it under 100 words, no exclamation marks, always mention a specific detail from the JD..."></textarea>
+  </section>
+
+  <button id="save">Save settings</button>
+  <span id="status"></span>
+
+  <script src="options.js"></script>
+</body>
+</html>
