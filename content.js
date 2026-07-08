@@ -179,7 +179,7 @@ function findAnchorForButton() {
   ]);
 }
 
-function captureNow(btn) {
+function captureNow(btn, label) {
   const jd = extractJobDescription();
   const hm = extractHiringManager();
 
@@ -190,9 +190,8 @@ function captureNow(btn) {
     capturedUrl: location.href
   });
 
-  const original = btn.textContent;
-  btn.textContent = jd.found ? "✓ Captured for Copilot" : "⚠ No job description found";
-  setTimeout(() => (btn.textContent = original), 2000);
+  btn.textContent = jd.found ? "Captured ✓" : "No job description found";
+  setTimeout(() => (btn.textContent = label), 2000);
 }
 
 function injectCaptureButton() {
@@ -200,25 +199,50 @@ function injectCaptureButton() {
   const anchor = findAnchorForButton();
   if (!anchor || !anchor.parentElement) return;
 
+  const fontFace = document.createElement("style");
+  fontFace.id = "li-copilot-inline-font";
+  if (!document.getElementById(fontFace.id)) {
+    fontFace.textContent = `
+      @font-face {
+        font-family: "Public Sans Copilot";
+        font-weight: 600;
+        src: url("${chrome.runtime.getURL("fonts/public-sans-600.woff2")}") format("woff2");
+      }
+    `;
+    document.head.appendChild(fontFace);
+  }
+
+  const label = "Capture job for Copilot";
   const btn = document.createElement("button");
   btn.id = CAPTURE_BTN_ID;
   btn.type = "button";
-  btn.textContent = "📋 Capture for Copilot";
+  btn.textContent = label;
   btn.style.cssText = [
-    "display:block",
+    "display:inline-flex",
+    "align-items:center",
+    "gap:6px",
     "margin:10px 0",
     "padding:6px 14px",
-    "background:#0a66c2",
-    "color:#fff",
-    "border:none",
-    "border-radius:16px",
-    "font-size:13px",
+    "background:transparent",
+    "color:#96611f",
+    "border:1px solid #b8792a",
+    "border-radius:7px",
+    "font-size:12.5px",
     "font-weight:600",
+    "font-family:'Public Sans Copilot',-apple-system,'Segoe UI',sans-serif",
     "cursor:pointer",
-    "font-family:inherit",
-    "z-index:1"
+    "z-index:1",
+    "transition:background 0.12s ease, color 0.12s ease"
   ].join(";");
-  btn.addEventListener("click", () => captureNow(btn));
+  btn.addEventListener("mouseenter", () => {
+    btn.style.background = "#b8792a";
+    btn.style.color = "#fffaf1";
+  });
+  btn.addEventListener("mouseleave", () => {
+    btn.style.background = "transparent";
+    btn.style.color = "#96611f";
+  });
+  btn.addEventListener("click", () => captureNow(btn, label));
 
   anchor.parentElement.insertBefore(btn, anchor);
 }
@@ -240,63 +264,136 @@ injectCaptureButton();
 
 const PANEL_HOST_ID = "li-copilot-panel-host";
 
+function fontUrl(file) {
+  return chrome.runtime.getURL(`fonts/${file}`);
+}
+
 const PANEL_STYLE = `
-  * { box-sizing: border-box; font-family: -apple-system, "Segoe UI", Roboto, sans-serif; }
-  .toggle {
-    background: #0a66c2; color: #fff; border: none; border-radius: 24px;
-    padding: 10px 16px; font-size: 13px; font-weight: 600; cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  @font-face { font-family: "Fraunces LC"; font-weight: 600; font-style: italic; src: url("${fontUrl("fraunces-600.woff2")}") format("woff2"); }
+  @font-face { font-family: "Public Sans LC"; font-weight: 400; src: url("${fontUrl("public-sans-400.woff2")}") format("woff2"); }
+  @font-face { font-family: "Public Sans LC"; font-weight: 500; src: url("${fontUrl("public-sans-500.woff2")}") format("woff2"); }
+  @font-face { font-family: "Public Sans LC"; font-weight: 600; src: url("${fontUrl("public-sans-600.woff2")}") format("woff2"); }
+  @font-face { font-family: "IBM Plex Mono LC"; font-weight: 500; src: url("${fontUrl("ibm-plex-mono-500.woff2")}") format("woff2"); }
+
+  :host {
+    --ink: #151c2c; --ink-soft: #545b6b; --ink-faint: #8a90a0;
+    --paper: #f4f5f7; --surface: #ffffff; --line: #dde0e6;
+    --accent: #b8792a; --accent-strong: #96611f; --accent-ink: #fffaf1;
+    --danger: #b23b32; --danger-bg: #fbeceb;
+    --font-display: "Fraunces LC", Georgia, serif;
+    --font-body: "Public Sans LC", -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "IBM Plex Mono LC", ui-monospace, Consolas, monospace;
   }
-  .toggle:hover { background: #004182; }
+  @media (prefers-color-scheme: dark) {
+    :host {
+      --ink: #e9eaee; --ink-soft: #a7adbb; --ink-faint: #6a7182;
+      --paper: #10131b; --surface: #181c26; --line: #2a2f3c;
+      --accent: #e0a94a; --accent-strong: #f0bd66; --accent-ink: #1b1305;
+      --danger: #e0685c; --danger-bg: #2c1917;
+    }
+  }
+
+  * { box-sizing: border-box; font-family: var(--font-body); }
+
+  .fab {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: var(--accent); color: var(--accent-ink);
+    border: none; cursor: pointer;
+    font-family: var(--font-display); font-size: 17px; font-style: italic;
+    box-shadow: 0 6px 20px rgba(20, 15, 5, 0.35);
+  }
+  .fab:hover { background: var(--accent-strong); }
+
   .panel {
-    width: 340px; max-height: 80vh; overflow-y: auto; background: #fff;
-    color: #1a1a1a; border-radius: 10px; box-shadow: 0 4px 24px rgba(0,0,0,0.3); padding: 12px;
+    width: 340px; max-height: 82vh; overflow-y: auto;
+    background: var(--surface); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 12px;
+    box-shadow: 0 12px 40px rgba(15, 12, 5, 0.28);
+    padding: 14px 16px 16px;
   }
-  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-  .header strong { font-size: 14px; }
-  .version { font-size: 10px; color: #888; margin-left: 4px; }
-  .close { background: none; border: none; font-size: 14px; cursor: pointer; color: #666; padding: 2px 6px; }
-  .error-banner {
-    background: #fdecea; color: #611a15; border: 1px solid #f5c6c2; border-radius: 6px;
-    padding: 6px 8px; font-size: 11px; margin-bottom: 8px;
+  .masthead {
+    display: flex; align-items: baseline; justify-content: space-between;
+    padding-bottom: 10px; margin-bottom: 12px; border-bottom: 1px solid var(--line);
   }
+  .wordmark { font-family: var(--font-display); font-weight: 600; font-size: 15.5px; }
+  .version { font-family: var(--font-mono); font-weight: 500; font-size: 9.5px; color: var(--ink-faint); margin-left: 4px; }
+  .close {
+    background: none; border: none; font-size: 14px; cursor: pointer;
+    color: var(--ink-soft); padding: 2px 6px; border-radius: 4px; width: auto;
+  }
+  .close:hover { color: var(--accent); }
+
+  .flag {
+    border-left: 3px solid var(--danger); background: var(--danger-bg); color: var(--danger);
+    padding: 7px 10px; font-size: 11.5px; line-height: 1.4; border-radius: 0 4px 4px 0; margin-bottom: 12px;
+  }
+
+  .rail-heading { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; }
+  .rail-heading::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .eyebrow { font-family: var(--font-display); font-weight: 600; font-style: italic; font-size: 12px; color: var(--accent-strong); white-space: nowrap; }
+
   .field { margin-bottom: 10px; }
-  .row { display: flex; align-items: center; justify-content: space-between; }
-  label { font-size: 12px; font-weight: 600; color: #444; }
+  .row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  label { font-size: 11.5px; font-weight: 600; color: var(--ink-soft); }
+
   textarea, select {
-    width: 100%; margin-top: 4px; padding: 6px; font-size: 12px; border: 1px solid #ccc;
-    border-radius: 6px; resize: vertical; font-family: inherit;
+    width: 100%; padding: 7px 8px; font-size: 12px; color: var(--ink);
+    background: var(--surface); border: 1px solid var(--line); border-radius: 6px;
+    resize: vertical; font-family: var(--font-body);
   }
-  button {
-    background: #0a66c2; color: #fff; border: none; border-radius: 16px; padding: 8px 14px;
-    font-size: 12px; font-weight: 600; cursor: pointer; width: 100%;
+  textarea:focus, select:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
   }
-  button:hover { background: #004182; }
-  button:disabled { background: #9db8d2; cursor: default; }
-  button.secondary { background: #fff; color: #0a66c2; border: 1px solid #0a66c2; }
-  button.secondary:hover { background: #eef3f9; }
-  button.small { width: auto; font-size: 11px; padding: 2px 8px; border-radius: 12px; }
+
+  .link-btn {
+    background: none; border: none; padding: 0; width: auto;
+    font-size: 11px; font-weight: 600; color: var(--ink-soft); cursor: pointer;
+    border-bottom: 1px solid transparent;
+  }
+  .link-btn:hover { color: var(--accent-strong); border-bottom-color: var(--accent-strong); }
+
+  button { font-weight: 600; font-size: 12.5px; cursor: pointer; border-radius: 7px; padding: 9px 14px; }
+  .generate {
+    width: 100%; background: var(--accent); color: var(--accent-ink); border: 1px solid var(--accent);
+  }
+  .generate:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+  .generate:disabled { background: var(--ink-faint); border-color: var(--ink-faint); cursor: default; }
+
+  .secondary { background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
+  .secondary:hover { border-color: var(--accent); color: var(--accent-strong); }
+  .ghost { background: none; color: var(--ink-soft); border: 1px solid transparent; }
+  .ghost:hover { color: var(--ink); background: var(--line); }
+
   .button-row { display: flex; gap: 8px; margin-top: 6px; }
-  .button-row button { width: auto; flex: 1; }
-  .hint { font-size: 11px; color: #666; margin: 4px 0 0; min-height: 14px; }
+  .button-row button { flex: 1; width: auto; }
+
+  .hint { font-size: 11px; color: var(--ink-faint); margin: 5px 0 0; min-height: 13px; }
+
+  .settings-row { margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--line); }
+  .settings-row button { width: 100%; }
 `;
 
 const PANEL_HTML = `
-  <div class="header">
-    <div><strong>LinkedIn Copilot</strong> <span class="version"></span></div>
-    <button class="close" title="Close">✕</button>
+  <div class="masthead">
+    <div class="wordmark">LinkedIn Copilot <span class="version"></span></div>
+    <button class="close ghost" type="button" title="Close" aria-label="Close">✕</button>
   </div>
-  <div class="error-banner" hidden></div>
+  <div class="flag" hidden role="alert"></div>
+
+  <div class="rail-heading"><span class="eyebrow">Source material</span></div>
   <div class="field">
-    <div class="row"><label>Job description</label><button class="small rescan-jd" type="button">Re-scan</button></div>
+    <div class="row"><label>Job description</label><button class="link-btn rescan-jd" type="button">Re-scan</button></div>
     <textarea class="jd" rows="3" placeholder="Not found — open a LinkedIn job posting, or paste it here manually."></textarea>
   </div>
   <div class="field">
-    <div class="row"><label>Hiring manager / recruiter info</label><button class="small rescan-hm" type="button">Re-scan</button></div>
+    <div class="row"><label>Hiring manager / recruiter</label><button class="link-btn rescan-hm" type="button">Re-scan</button></div>
     <textarea class="hm" rows="2" placeholder="Not found — open their profile or the 'Meet the hiring team' card, or paste details here."></textarea>
   </div>
+
+  <div class="rail-heading"><span class="eyebrow">Draft</span></div>
   <div class="field">
-    <label>What do you want to draft?</label>
+    <label>Message type</label>
     <select class="draftType">
       <option value="connection_note">Connection request note (≤300 chars)</option>
       <option value="inmail">InMail / direct message to hiring manager</option>
@@ -306,15 +403,18 @@ const PANEL_HTML = `
   <button class="generate" type="button">Generate draft</button>
   <p class="hint gen-status"></p>
   <div class="field">
-    <label>Draft</label>
+    <label>Result</label>
     <textarea class="draft" rows="4"></textarea>
     <div class="button-row">
-      <button class="secondary copy" type="button">Copy</button>
-      <button class="insert" type="button">Insert into LinkedIn</button>
+      <button class="ghost copy" type="button">Copy</button>
+      <button class="secondary insert" type="button">Insert into LinkedIn</button>
     </div>
     <p class="hint insert-status"></p>
   </div>
-  <button class="secondary settings" type="button">⚙ Settings</button>
+
+  <div class="settings-row">
+    <button class="ghost settings" type="button">Settings</button>
+  </div>
 `;
 
 function buildPromptsForPanel(settings, jdValue, hmValue, draftType) {
@@ -363,9 +463,11 @@ function buildPanel() {
   shadow.appendChild(style);
 
   const toggleBtn = document.createElement("button");
-  toggleBtn.className = "toggle";
+  toggleBtn.className = "fab";
   toggleBtn.type = "button";
-  toggleBtn.textContent = "🤖 Copilot";
+  toggleBtn.textContent = "LC";
+  toggleBtn.title = "Open LinkedIn Copilot";
+  toggleBtn.setAttribute("aria-label", "Open LinkedIn Copilot");
   shadow.appendChild(toggleBtn);
 
   const panel = document.createElement("div");
@@ -381,7 +483,7 @@ function buildPanel() {
     draft: panel.querySelector(".draft"),
     genStatus: panel.querySelector(".gen-status"),
     insertStatus: panel.querySelector(".insert-status"),
-    errorBanner: panel.querySelector(".error-banner"),
+    errorBanner: panel.querySelector(".flag"),
     version: panel.querySelector(".version"),
     generateBtn: panel.querySelector(".generate")
   };

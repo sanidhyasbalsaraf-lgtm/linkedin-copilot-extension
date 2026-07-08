@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "LinkedIn Job & Outreach Copilot",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Pulls the job description and hiring manager info from a LinkedIn job posting, then drafts a reply or outreach message in your own writing style using OpenAI.",
   "permissions": ["storage", "activeTab", "scripting"],
   "host_permissions": [
@@ -20,6 +20,12 @@
       "matches": ["https://www.linkedin.com/*"],
       "js": ["content.js"],
       "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["fonts/*.woff2"],
+      "matches": ["https://www.linkedin.com/*"]
     }
   ],
   "options_page": "options.html"

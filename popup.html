@@ -3,53 +3,65 @@
 <head>
   <meta charset="utf-8" />
   <title>LinkedIn Copilot</title>
+  <link rel="stylesheet" href="tokens.css" />
   <link rel="stylesheet" href="popup.css" />
 </head>
 <body>
-  <header>
-    <h1>LinkedIn Copilot <span id="version" class="version"></span></h1>
-    <button id="openOptions" title="Settings">⚙</button>
+  <header class="masthead">
+    <div class="wordmark">
+      LinkedIn Copilot <span class="version" id="version"></span>
+    </div>
+    <button class="ghost-icon" id="openOptions" title="Settings" aria-label="Settings">⚙</button>
   </header>
 
-  <div id="errorBanner" class="error-banner" hidden></div>
+  <div id="errorBanner" class="flag flag-danger" hidden role="alert"></div>
 
-  <div class="field">
-    <div class="field-label-row">
-      <label for="jd">Job description</label>
-      <button class="small" id="reExtractJd">Re-scan page</button>
+  <section class="rail-section">
+    <div class="rail-heading">
+      <span class="eyebrow">Source material</span>
     </div>
-    <textarea id="jd" rows="3" placeholder="Not found on this page — open a LinkedIn job posting, or paste it here manually."></textarea>
-  </div>
-
-  <div class="field">
-    <div class="field-label-row">
-      <label for="hm">Hiring manager / recruiter info</label>
-      <button class="small" id="reExtractHm">Re-scan page</button>
+    <div class="field">
+      <div class="field-label-row">
+        <label for="jd">Job description</label>
+        <button class="link-btn" id="reExtractJd" type="button">Re-scan</button>
+      </div>
+      <textarea id="jd" rows="3" placeholder="Not found on this page — open a LinkedIn job posting, or paste it here manually."></textarea>
     </div>
-    <textarea id="hm" rows="2" placeholder="Not found — open their LinkedIn profile or the job's 'Meet the hiring team' card, or paste details here."></textarea>
-  </div>
-
-  <div class="field">
-    <label for="draftType">What do you want to draft?</label>
-    <select id="draftType">
-      <option value="connection_note">Connection request note (≤300 chars)</option>
-      <option value="inmail">InMail / direct message to hiring manager</option>
-      <option value="reply">Reply to the job posting (cover-note style)</option>
-    </select>
-  </div>
-
-  <button id="generate">Generate draft</button>
-  <p id="genStatus" class="hint"></p>
-
-  <div class="field">
-    <label for="draft">Draft</label>
-    <textarea id="draft" rows="4"></textarea>
-    <div class="button-row">
-      <button id="copyDraft" class="secondary">Copy</button>
-      <button id="insertDraft">Insert into LinkedIn</button>
+    <div class="field">
+      <div class="field-label-row">
+        <label for="hm">Hiring manager / recruiter</label>
+        <button class="link-btn" id="reExtractHm" type="button">Re-scan</button>
+      </div>
+      <textarea id="hm" rows="2" placeholder="Not found — open their profile or the job's 'Meet the hiring team' card, or paste details here."></textarea>
     </div>
-    <p id="insertStatus" class="hint"></p>
-  </div>
+  </section>
+
+  <section class="rail-section">
+    <div class="rail-heading">
+      <span class="eyebrow">Draft</span>
+    </div>
+    <div class="field">
+      <label for="draftType">Message type</label>
+      <select id="draftType">
+        <option value="connection_note">Connection request note (≤300 chars)</option>
+        <option value="inmail">InMail / direct message to hiring manager</option>
+        <option value="reply">Reply to the job posting (cover-note style)</option>
+      </select>
+    </div>
+
+    <button class="btn-primary" id="generate" type="button">Generate draft</button>
+    <p id="genStatus" class="hint"></p>
+
+    <div class="field">
+      <label for="draft">Result</label>
+      <textarea id="draft" rows="4"></textarea>
+      <div class="button-row">
+        <button id="copyDraft" class="btn-ghost" type="button">Copy</button>
+        <button id="insertDraft" class="btn-secondary" type="button">Insert into LinkedIn</button>
+      </div>
+      <p id="insertStatus" class="hint"></p>
+    </div>
+  </section>
 
   <script src="popup.js"></script>
 </body>

@@ -21,13 +21,13 @@ in your own writing style, using OpenAI.
 
 There are two ways to use it — pick whichever's more convenient:
 
-**On the page itself** (no popup needed): a **"🤖 Copilot"** button floats at
+**On the page itself** (no popup needed): a round **"LC"** button floats at
 the bottom-right of every LinkedIn page. Click it to open the full panel —
 job description, hiring-manager info, draft type, Generate, Copy, and Insert —
 right there on the page. It auto-scans the page when opened; use its own
 **Re-scan** buttons to refresh either field.
 
-**Via the toolbar popup**: a quick **"📋 Capture for Copilot"** button also
+**Via the toolbar popup**: a quick **"Capture job for Copilot"** button also
 appears right above "About the job" for a fast grab. Then click the extension
 icon in the toolbar — it loads whatever was captured, with the same
 Re-scan / Generate / Copy / Insert controls.
@@ -53,3 +53,8 @@ Either way, the flow is:
 - There is no official LinkedIn messaging API; the "Insert into LinkedIn"
   button works by finding the message/connection-note box already open in the
   page and typing into it, the same as a user would.
+- The popup, Settings page, and on-page panel share one visual system:
+  Fraunces (serif, section labels/wordmark) + Public Sans (UI text) + IBM
+  Plex Mono (version tag), a warm brass accent, and light/dark palettes that
+  follow your OS theme. Font files live in `fonts/` and are loaded locally —
+  no external requests at runtime.
