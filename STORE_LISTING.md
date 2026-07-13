@@ -94,6 +94,11 @@ Paste the relevant one into each permission's justification box:
 - **host permission: `https://api.openai.com/*`** — Required to send the
   drafting request directly to OpenAI using the user's own API key when they
   click Generate.
+- **Remote code**: answer **No**. Justification — "This extension does not
+  load or execute any remotely hosted code. All JavaScript, CSS, and font
+  files are bundled inside the extension package. The only network request
+  is to api.openai.com, which returns a text completion (JSON data) that is
+  inserted into the page as plain text — never executed as code."
 
 ## Data-use disclosures (Privacy Practices tab)
 
