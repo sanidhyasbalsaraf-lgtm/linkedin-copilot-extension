@@ -37,3 +37,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
   return true; // keep the message channel open for the async response
 });
+
+// Show the guided walkthrough on a fresh install only — not on updates, so
+// existing users don't see it again when the version bumps.
+chrome.runtime.onInstalled.addListener((details) => {
+  if (details.reason === "install") {
+    chrome.tabs.create({ url: chrome.runtime.getURL("onboarding.html") });
+  }
+});

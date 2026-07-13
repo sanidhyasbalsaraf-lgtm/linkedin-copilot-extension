@@ -10,7 +10,10 @@
 <body>
   <header class="masthead">
     <div class="wordmark">LinkedIn Copilot <span class="dim">— Settings</span></div>
-    <span class="version" id="version"></span>
+    <div class="masthead-right">
+      <button id="howItWorks" class="link-btn" type="button">How it works</button>
+      <span class="version" id="version"></span>
+    </div>
   </header>
 
   <div id="errorBanner" class="flag flag-danger" hidden role="alert"></div>
@@ -56,6 +59,10 @@
 
   <section class="rail-section">
     <div class="rail-heading"><span class="eyebrow">Candidate profile</span></div>
+    <div class="field">
+      <label for="name">Your name</label>
+      <input type="text" id="name" placeholder="e.g. Sanidhya Balsaraf" />
+    </div>
     <div class="field">
       <label for="background">Background &amp; target roles</label>
       <textarea id="background" rows="3" placeholder="e.g. HR &amp; Project Management professional, MSc Management (Leeds), targeting HR/PM/Strategy roles in UK and India..."></textarea>

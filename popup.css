@@ -95,7 +95,7 @@ label {
   color: var(--ink-soft);
 }
 
-textarea, select {
+input, textarea, select {
   width: 100%;
   box-sizing: border-box;
   padding: 7px 8px;
@@ -107,7 +107,7 @@ textarea, select {
   border-radius: var(--input-radius);
   resize: vertical;
 }
-textarea:focus, select:focus {
+input:focus, textarea:focus, select:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);

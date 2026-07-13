@@ -1,4 +1,4 @@
-const FIELDS = ["apiKey", "model", "background", "samples", "tone", "notes"];
+const FIELDS = ["apiKey", "model", "name", "background", "samples", "tone", "notes"];
 const errorBannerEl = document.getElementById("errorBanner");
 const versionEl = document.getElementById("version");
 
@@ -12,6 +12,17 @@ function showError(message) {
 function clearError() {
   errorBannerEl.hidden = true;
   errorBannerEl.textContent = "";
+}
+
+// Chrome throws this exact message when the extension was reloaded/updated
+// while this Settings tab's JS was already running — it's now disconnected
+// from the new background script and needs a page refresh.
+function friendlyError(err) {
+  const message = err && err.message ? err.message : String(err);
+  if (/Extension context invalidated/i.test(message)) {
+    return "This extension was just updated or reloaded. Refresh this page, then try again.";
+  }
+  return message;
 }
 
 function load() {
@@ -35,35 +46,46 @@ function loadAppearance() {
 }
 
 function saveAppearance() {
-  const themeStyle = document.getElementById("themeStyle").value;
-  const themeMode = document.getElementById("themeMode").value;
-  applyTheme(themeStyle, themeMode);
-  chrome.storage.local.set({ themeStyle, themeMode }, () => {
-    if (chrome.runtime.lastError) {
-      showError("Couldn't save appearance: " + chrome.runtime.lastError.message);
-    }
-  });
+  try {
+    const themeStyle = document.getElementById("themeStyle").value;
+    const themeMode = document.getElementById("themeMode").value;
+    applyTheme(themeStyle, themeMode);
+    chrome.storage.local.set({ themeStyle, themeMode }, () => {
+      if (chrome.runtime.lastError) {
+        showError("Couldn't save appearance: " + friendlyError(chrome.runtime.lastError));
+      }
+    });
+  } catch (err) {
+    showError(friendlyError(err));
+  }
 }
 
 function save() {
   clearError();
-  const values = {};
-  FIELDS.forEach((f) => {
-    values[f] = document.getElementById(f).value.trim();
-  });
-  chrome.storage.local.set(values, () => {
-    if (chrome.runtime.lastError) {
-      showError("Couldn't save settings: " + chrome.runtime.lastError.message);
-      return;
-    }
-    const status = document.getElementById("status");
-    status.textContent = "Saved.";
-    setTimeout(() => (status.textContent = ""), 2000);
-  });
+  try {
+    const values = {};
+    FIELDS.forEach((f) => {
+      values[f] = document.getElementById(f).value.trim();
+    });
+    chrome.storage.local.set(values, () => {
+      if (chrome.runtime.lastError) {
+        showError("Couldn't save settings: " + friendlyError(chrome.runtime.lastError));
+        return;
+      }
+      const status = document.getElementById("status");
+      status.textContent = "Saved.";
+      setTimeout(() => (status.textContent = ""), 2000);
+    });
+  } catch (err) {
+    showError(friendlyError(err));
+  }
 }
 
 document.getElementById("save").addEventListener("click", save);
 document.getElementById("themeStyle").addEventListener("change", saveAppearance);
 document.getElementById("themeMode").addEventListener("change", saveAppearance);
+document.getElementById("howItWorks").addEventListener("click", () => {
+  chrome.tabs.create({ url: chrome.runtime.getURL("onboarding.html") });
+});
 load();
 loadAppearance();

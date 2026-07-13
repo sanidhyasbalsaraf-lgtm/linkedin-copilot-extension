@@ -8,11 +8,19 @@ in your own writing style, using OpenAI.
 
 1. Go to `chrome://extensions`, enable **Developer mode** (top right).
 2. Click **Load unpacked**, select this folder.
-3. Click the extension icon → the gear (⚙) to open **Settings**:
-   - Paste your OpenAI API key (get one at platform.openai.com/api-keys).
-   - Optionally change the model (defaults to `gpt-4o`).
-   - Fill in your background summary, 3-5 sample messages you've written before, tone, and any style notes.
-   - Save.
+3. A **welcome tab opens automatically** on first install — a 4-step
+   walkthrough (your name → OpenAI key → your writing voice → appearance)
+   that saves straight into the same settings Settings page uses.
+   - Your **name is required** on step 1 (Next stays disabled until you type
+     something) — it's used to sign off drafts, so there's no skipping it.
+   - Steps 2–3 have their own **Skip this step** button if you'd rather fill
+     them in later from Settings.
+   - The **dots at the bottom** show progress and are clickable — jump to any
+     step directly (you'll be bounced back to step 1 if you try to jump ahead
+     without a name yet).
+   - **Skip for now** (top-right) exits the whole walkthrough at any point.
+   - Missed it, or want to see it again? Open Settings (the gear icon in the
+     popup) and click **How it works** in the top-right.
 4. If you had a LinkedIn tab already open before installing/reloading the
    extension, **refresh that tab once** — content scripts only auto-inject into
    tabs opened after the extension loads.
@@ -35,9 +43,13 @@ Re-scan / Generate / Copy / Insert controls.
 Either way, the flow is:
 1. Make sure the job description (and hiring-manager info, if shown) is populated.
 2. Pick a draft type: connection note, InMail, or job-reply cover note.
-3. Click **Generate draft**.
+3. Click **Generate draft**. For **InMail**, a **Subject** field appears above
+   the draft and is filled in alongside it — connection notes and replies
+   don't get one, since LinkedIn doesn't show a subject box for those.
 4. Click **Insert into LinkedIn** while the relevant message/connection-note box
-   is open on the page, or **Copy** to paste it yourself.
+   is open on the page — this fills the subject field too if one is present —
+   or **Copy** to paste it yourself (the subject is included on its own line
+   when there is one).
 
 ## Notes
 
@@ -61,3 +73,14 @@ Either way, the flow is:
   update live via `chrome.storage.onChanged`. "LinkedIn" is the default look.
 - Font files live in `fonts/` and are loaded locally — no external requests
   at runtime, in either look.
+- The toolbar icon and `chrome://extensions` card use a generated "LC"
+  monogram (`icons/`) instead of Chrome's default puzzle-piece placeholder.
+- **Your name** (set during onboarding or in Settings > Candidate profile) is
+  passed to the model so it can sign off InMails and cover-note replies with
+  it — connection notes stay unsigned since they're too short for one.
+- **"Extension context invalidated" / "was just updated or reloaded"**: this
+  happens if a popup, the panel, or a Settings/onboarding tab was already open
+  from *before* the extension got reloaded in `chrome://extensions` (which
+  happens every time you update the code). It's not a bug in the logic — just
+  close and reopen whichever surface showed the message (or refresh the
+  LinkedIn tab for the on-page panel) and it'll reconnect to the new version.

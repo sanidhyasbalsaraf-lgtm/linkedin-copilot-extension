@@ -123,13 +123,26 @@ function setNativeValue(element, value) {
   element.dispatchEvent(new Event("input", { bubbles: true }));
 }
 
-function insertDraft(text) {
+function insertSubject(subject) {
+  if (!subject) return false;
+  // LinkedIn's InMail compose has a separate subject input; connection notes
+  // and regular messages don't have one, so this is a no-op there.
+  const subjectBox = document.querySelector(
+    "input[name='subject'], input[id*='subject' i], input[aria-label*='subject' i]"
+  );
+  if (!subjectBox) return false;
+  subjectBox.focus();
+  setNativeValue(subjectBox, subject);
+  return true;
+}
+
+function insertDraft(text, subject) {
   // Connection-request note.
   const noteBox = document.querySelector("textarea#custom-message, textarea[name='message']");
   if (noteBox) {
     noteBox.focus();
     setNativeValue(noteBox, text);
-    return { inserted: true, target: "connection note" };
+    return { inserted: true, target: "connection note", subjectInserted: false };
   }
 
   // Messaging / InMail contenteditable compose box (inbox or profile "Message" modal).
@@ -137,14 +150,15 @@ function insertDraft(text) {
     "div.msg-form__contenteditable[contenteditable='true'], div[contenteditable='true'][role='textbox']"
   );
   if (composeBox) {
+    const subjectInserted = insertSubject(subject);
     composeBox.focus();
     document.execCommand("selectAll", false, null);
     document.execCommand("insertText", false, text);
     composeBox.dispatchEvent(new InputEvent("input", { bubbles: true, cancelable: true }));
-    return { inserted: true, target: "message box" };
+    return { inserted: true, target: "message box", subjectInserted };
   }
 
-  return { inserted: false, target: null };
+  return { inserted: false, target: null, subjectInserted: false };
 }
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
@@ -153,7 +167,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   } else if (msg.type === "EXTRACT_HM") {
     sendResponse(extractHiringManager());
   } else if (msg.type === "INSERT_DRAFT") {
-    sendResponse(insertDraft(msg.text));
+    sendResponse(insertDraft(msg.text, msg.subject));
   }
   return true;
 });
@@ -385,12 +399,12 @@ const PANEL_STYLE = `
   .row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
   label { font-size: 11.5px; font-weight: 600; color: var(--ink-soft); }
 
-  textarea, select {
+  input, textarea, select {
     width: 100%; padding: 7px 8px; font-size: 12px; color: var(--ink);
     background: var(--surface); border: 1px solid var(--line); border-radius: var(--input-radius);
     resize: vertical; font-family: var(--font-body);
   }
-  textarea:focus, select:focus {
+  input:focus, textarea:focus, select:focus {
     outline: none; border-color: var(--accent);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
   }
@@ -451,6 +465,10 @@ const PANEL_HTML = `
   </div>
   <button class="generate" type="button">Generate draft</button>
   <p class="hint gen-status"></p>
+  <div class="field subject-field" hidden>
+    <label>Subject</label>
+    <input type="text" class="subject" placeholder="Generated with the draft — InMail only" />
+  </div>
   <div class="field">
     <label>Result</label>
     <textarea class="draft" rows="4"></textarea>
@@ -466,14 +484,25 @@ const PANEL_HTML = `
   </div>
 `;
 
+// Mirrors splitSubjectAndBody in popup.js — LinkedIn's InMail compose has a
+// separate subject field, so the model is asked to prefix InMail output with
+// "Subject: ..." on its own line, which this splits back out.
+function splitSubjectAndBody(text) {
+  const match = /^Subject:\s*(.+?)\s*\n+([\s\S]+)$/i.exec(text.trim());
+  if (match) {
+    return { subject: match[1].trim(), body: match[2].trim() };
+  }
+  return { subject: "", body: text.trim() };
+}
+
 function buildPromptsForPanel(settings, jdValue, hmValue, draftType) {
   const typeInstructions = {
     connection_note:
-      "Write a LinkedIn connection request note. Hard limit: 300 characters. No greeting boilerplate like 'I hope this finds you well'. Get straight to a genuine, specific reason to connect based on the job and the person's background.",
+      "Write a LinkedIn connection request note. Hard limit: 300 characters. No greeting boilerplate like 'I hope this finds you well'. Get straight to a genuine, specific reason to connect based on the job and the person's background. Do not include a subject line.",
     inmail:
-      "Write a LinkedIn InMail / direct message to the hiring manager. Aim for 80-150 words. Reference something specific from the job description and something specific from the hiring manager's profile if available. End with a clear, low-friction ask (e.g. a quick chat or to be considered for the role).",
+      "Write a LinkedIn InMail / direct message to the hiring manager. Aim for 80-150 words. Reference something specific from the job description and something specific from the hiring manager's profile if available. End with a clear, low-friction ask (e.g. a quick chat or to be considered for the role). Also write a short subject line (under 60 characters, specific to the role/company, no generic 'Application' or clickbait). Output format: the first line must be exactly 'Subject: <subject line>', then a blank line, then the message body — nothing else before or after.",
     reply:
-      "Write a short cover-note style reply responding to this job posting, suitable to send alongside an application. Aim for 120-180 words. Reference 2-3 concrete requirements from the JD and connect them to the candidate's background."
+      "Write a short cover-note style reply responding to this job posting, suitable to send alongside an application. Aim for 120-180 words. Reference 2-3 concrete requirements from the JD and connect them to the candidate's background. Do not include a subject line."
   };
 
   const system = [
@@ -481,6 +510,7 @@ function buildPromptsForPanel(settings, jdValue, hmValue, draftType) {
     "Write ONLY in the candidate's own voice, matching the style samples and tone given below as closely as possible.",
     "Never invent facts, job titles, employers, or achievements that aren't in the candidate's background summary or style samples.",
     "Output only the final message text — no preamble, no explanation, no quotation marks around it.",
+    settings.name ? `Candidate name: ${settings.name} — sign off with this name where a sign-off fits naturally (e.g. InMail/reply, not a 300-char connection note).` : "",
     settings.background ? `Candidate background:\n${settings.background}` : "",
     settings.tone ? `Desired tone: ${settings.tone}` : "",
     settings.samples ? `Writing style samples (match this voice, don't copy content):\n${settings.samples}` : "",
@@ -555,6 +585,8 @@ function buildPanel() {
     jd: panel.querySelector(".jd"),
     hm: panel.querySelector(".hm"),
     draftType: panel.querySelector(".draftType"),
+    subjectField: panel.querySelector(".subject-field"),
+    subject: panel.querySelector(".subject"),
     draft: panel.querySelector(".draft"),
     genStatus: panel.querySelector(".gen-status"),
     insertStatus: panel.querySelector(".insert-status"),
@@ -565,6 +597,12 @@ function buildPanel() {
 
   els.version.textContent = "v" + chrome.runtime.getManifest().version;
 
+  function updateSubjectVisibility() {
+    els.subjectField.hidden = els.draftType.value !== "inmail";
+  }
+  els.draftType.addEventListener("change", updateSubjectVisibility);
+  updateSubjectVisibility();
+
   function showError(message) {
     els.errorBanner.textContent = message;
     els.errorBanner.hidden = false;
@@ -573,13 +611,24 @@ function buildPanel() {
     els.errorBanner.hidden = true;
     els.errorBanner.textContent = "";
   }
+  // Chrome throws this exact message when the extension was reloaded/updated
+  // while this panel's JS was already running on the page — it's now
+  // disconnected from the new background script and needs a page refresh.
+  function friendlyError(err) {
+    const message = err && err.message ? err.message : String(err);
+    if (/Extension context invalidated/i.test(message)) {
+      return "This extension was just updated or reloaded. Refresh this LinkedIn page, then try again.";
+    }
+    return message;
+  }
+
   function withErrorHandling(fn) {
     return async (...args) => {
       try {
         clearError();
         await fn(...args);
       } catch (err) {
-        showError(err && err.message ? err.message : String(err));
+        showError(friendlyError(err));
       }
     };
   }
@@ -599,13 +648,14 @@ function buildPanel() {
 
   async function generateDraft() {
     const settings = await new Promise((resolve) =>
-      chrome.storage.local.get(["apiKey", "model", "background", "samples", "tone", "notes"], resolve)
+      chrome.storage.local.get(["apiKey", "model", "name", "background", "samples", "tone", "notes"], resolve)
     );
     if (!settings.apiKey) throw new Error("Add your OpenAI API key in Settings (⚙) first.");
 
     els.generateBtn.disabled = true;
     els.genStatus.textContent = "Generating…";
     els.draft.value = "";
+    els.subject.value = "";
 
     const { system, prompt } = buildPromptsForPanel(settings, els.jd.value, els.hm.value, els.draftType.value);
 
@@ -624,7 +674,9 @@ function buildPanel() {
       });
       if (!response) throw new Error("No response from the background script.");
       if (!response.ok) throw new Error(response.error || "Draft generation failed.");
-      els.draft.value = response.text;
+      const { subject, body } = splitSubjectAndBody(response.text);
+      els.draft.value = body;
+      els.subject.value = subject;
     } finally {
       els.generateBtn.disabled = false;
       els.genStatus.textContent = "";
@@ -633,17 +685,21 @@ function buildPanel() {
 
   async function copyDraft() {
     if (!els.draft.value.trim()) throw new Error("Nothing to copy yet — generate a draft first.");
-    await navigator.clipboard.writeText(els.draft.value);
+    const text = els.subject.value.trim()
+      ? `Subject: ${els.subject.value.trim()}\n\n${els.draft.value}`
+      : els.draft.value;
+    await navigator.clipboard.writeText(text);
     els.insertStatus.textContent = "Copied to clipboard.";
   }
 
   function insertDraftFromPanel() {
     if (!els.draft.value.trim()) throw new Error("Generate a draft first.");
-    const result = insertDraft(els.draft.value);
+    const result = insertDraft(els.draft.value, els.subject.value);
     if (!result.inserted) {
       throw new Error("No open message box found on this page — open LinkedIn's message/connection dialog first.");
     }
-    els.insertStatus.textContent = `Inserted into the ${result.target}.`;
+    const subjectNote = result.subjectInserted ? " (subject included)" : "";
+    els.insertStatus.textContent = `Inserted into the ${result.target}${subjectNote}.`;
   }
 
   panel.querySelector(".rescan-jd").addEventListener("click", withErrorHandling(rescanJd));
