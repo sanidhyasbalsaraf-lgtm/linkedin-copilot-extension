@@ -54,7 +54,21 @@ function extractJobDescription() {
       /about the job/i.test(h.innerText)
     );
     if (heading && heading.parentElement) {
+      // Our own "Capture for Copilot" button is inserted as a sibling right
+      // before this same heading, so it ends up inside heading.parentElement
+      // too — pull it out during extraction so its label doesn't leak into
+      // the captured description, then put it back exactly where it was.
+      const ownButton = document.getElementById(CAPTURE_BTN_ID);
+      const ownButtonWasInside = Boolean(ownButton) && heading.parentElement.contains(ownButton);
+      let restoreBeforeNode = null;
+      if (ownButtonWasInside) {
+        restoreBeforeNode = ownButton.nextSibling;
+        ownButton.remove();
+      }
       description = textOf(heading.parentElement);
+      if (ownButtonWasInside) {
+        heading.parentElement.insertBefore(ownButton, restoreBeforeNode);
+      }
     }
   }
 
