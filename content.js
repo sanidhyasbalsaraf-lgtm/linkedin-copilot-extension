@@ -24,55 +24,60 @@ function firstMatch(selectors) {
   return null;
 }
 
+// Our own "Capture for Copilot" button is inserted as a sibling of whatever
+// heading/container anchors it, so any selector that reads an ancestor of
+// that anchor can end up including the button's own (transient) label text.
+// Detach it for the duration of `fn`, then put it back in its exact spot —
+// covers every extraction path in one place instead of patching each branch.
+function withCaptureButtonDetached(fn) {
+  const ownButton = document.getElementById(CAPTURE_BTN_ID);
+  const parent = ownButton ? ownButton.parentElement : null;
+  const nextSibling = ownButton ? ownButton.nextSibling : null;
+  if (ownButton) ownButton.remove();
+  try {
+    return fn();
+  } finally {
+    if (ownButton && parent) parent.insertBefore(ownButton, nextSibling);
+  }
+}
+
 function extractJobDescription() {
-  const titleEl = firstMatch([
-    "h1.job-details-jobs-unified-top-card__job-title",
-    "h1.jobs-unified-top-card__job-title",
-    ".job-details-jobs-unified-top-card__job-title-link",
-    "h1"
-  ]);
-  const companyEl = firstMatch([
-    ".job-details-jobs-unified-top-card__company-name",
-    ".jobs-unified-top-card__company-name",
-    ".job-details-jobs-unified-top-card__primary-description-container a"
-  ]);
-  const descEl = firstMatch([
-    ".jobs-description__content .jobs-box__html-content",
-    ".jobs-description-content__text",
-    ".jobs-box__html-content",
-    "#job-details",
-    ".jobs-description"
-  ]);
+  return withCaptureButtonDetached(() => {
+    const titleEl = firstMatch([
+      "h1.job-details-jobs-unified-top-card__job-title",
+      "h1.jobs-unified-top-card__job-title",
+      ".job-details-jobs-unified-top-card__job-title-link",
+      "h1"
+    ]);
+    const companyEl = firstMatch([
+      ".job-details-jobs-unified-top-card__company-name",
+      ".jobs-unified-top-card__company-name",
+      ".job-details-jobs-unified-top-card__primary-description-container a"
+    ]);
+    const descEl = firstMatch([
+      ".jobs-description__content .jobs-box__html-content",
+      ".jobs-description-content__text",
+      ".jobs-box__html-content",
+      "#job-details",
+      ".jobs-description"
+    ]);
 
-  const title = textOf(titleEl);
-  const company = textOf(companyEl);
-  let description = textOf(descEl);
+    const title = textOf(titleEl);
+    const company = textOf(companyEl);
+    let description = textOf(descEl);
 
-  if (!description) {
-    // Fallback: find a heading that says "About the job" and grab its container's text.
-    const heading = Array.from(document.querySelectorAll("h2, h3")).find((h) =>
-      /about the job/i.test(h.innerText)
-    );
-    if (heading && heading.parentElement) {
-      // Our own "Capture for Copilot" button is inserted as a sibling right
-      // before this same heading, so it ends up inside heading.parentElement
-      // too — pull it out during extraction so its label doesn't leak into
-      // the captured description, then put it back exactly where it was.
-      const ownButton = document.getElementById(CAPTURE_BTN_ID);
-      const ownButtonWasInside = Boolean(ownButton) && heading.parentElement.contains(ownButton);
-      let restoreBeforeNode = null;
-      if (ownButtonWasInside) {
-        restoreBeforeNode = ownButton.nextSibling;
-        ownButton.remove();
-      }
-      description = textOf(heading.parentElement);
-      if (ownButtonWasInside) {
-        heading.parentElement.insertBefore(ownButton, restoreBeforeNode);
+    if (!description) {
+      // Fallback: find a heading that says "About the job" and grab its container's text.
+      const heading = Array.from(document.querySelectorAll("h2, h3")).find((h) =>
+        /about the job/i.test(h.innerText)
+      );
+      if (heading && heading.parentElement) {
+        description = textOf(heading.parentElement);
       }
     }
-  }
 
-  return { title, company, description, found: Boolean(description) };
+    return { title, company, description, found: Boolean(description) };
+  });
 }
 
 function extractHiringManager() {

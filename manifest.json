@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Outreach Copilot for LinkedIn",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "description": "Draft LinkedIn connection notes, InMails, and job replies in your own voice using OpenAI. Independent tool, not LinkedIn-affiliated.",
   "author": "Sanidhya Balsaraf",
   "homepage_url": "https://github.com/sanidhyasbalsaraf-lgtm/linkedin-copilot-extension",
