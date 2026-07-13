@@ -1,8 +1,11 @@
-# LinkedIn Job & Outreach Copilot
+# Outreach Copilot for LinkedIn
+
+*Independent tool — not affiliated with, endorsed by, or sponsored by LinkedIn
+Corporation.*
 
 A Chrome extension that pulls the job description and hiring-manager info off a
 LinkedIn job posting, then drafts a connection note / InMail / cover-note reply
-in your own writing style, using OpenAI.
+in your own writing style, using OpenAI (bring your own API key — see Notes).
 
 ## Install (unpacked)
 
@@ -29,7 +32,7 @@ in your own writing style, using OpenAI.
 
 There are two ways to use it — pick whichever's more convenient:
 
-**On the page itself** (no popup needed): a round **"LC"** button floats at
+**On the page itself** (no popup needed): a round **"OC"** button floats at
 the bottom-right of every LinkedIn page. Click it to open the full panel —
 job description, hiring-manager info, draft type, Generate, Copy, and Insert —
 right there on the page. It auto-scans the page when opened; use its own
@@ -73,8 +76,11 @@ Either way, the flow is:
   update live via `chrome.storage.onChanged`. "LinkedIn" is the default look.
 - Font files live in `fonts/` and are loaded locally — no external requests
   at runtime, in either look.
-- The toolbar icon and `chrome://extensions` card use a generated "LC"
+- The toolbar icon and `chrome://extensions` card use a generated "OC"
   monogram (`icons/`) instead of Chrome's default puzzle-piece placeholder.
+- **Requires your own OpenAI API key** (Settings > Connection). Usage is
+  billed directly to your OpenAI account at OpenAI's rates — the extension
+  itself is free and never bundles, proxies, or shares a key.
 - **Your name** (set during onboarding or in Settings > Candidate profile) is
   passed to the model so it can sign off InMails and cover-note replies with
   it — connection notes stay unsigned since they're too short for one.

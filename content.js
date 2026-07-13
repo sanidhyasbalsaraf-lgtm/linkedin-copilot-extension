@@ -439,7 +439,7 @@ const PANEL_STYLE = `
 
 const PANEL_HTML = `
   <div class="masthead">
-    <div class="wordmark">LinkedIn Copilot <span class="version"></span></div>
+    <div class="wordmark">Outreach Copilot <span class="version"></span></div>
     <button class="close ghost" type="button" title="Close" aria-label="Close">✕</button>
   </div>
   <div class="flag" hidden role="alert"></div>
@@ -570,9 +570,9 @@ function buildPanel() {
   const toggleBtn = document.createElement("button");
   toggleBtn.className = "fab";
   toggleBtn.type = "button";
-  toggleBtn.textContent = "LC";
-  toggleBtn.title = "Open LinkedIn Copilot";
-  toggleBtn.setAttribute("aria-label", "Open LinkedIn Copilot");
+  toggleBtn.textContent = "OC";
+  toggleBtn.title = "Open Outreach Copilot";
+  toggleBtn.setAttribute("aria-label", "Open Outreach Copilot");
   shadow.appendChild(toggleBtn);
 
   const panel = document.createElement("div");

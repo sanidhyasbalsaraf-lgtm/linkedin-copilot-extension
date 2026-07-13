@@ -1,0 +1,136 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Privacy Policy — Outreach Copilot for LinkedIn</title>
+  <link rel="stylesheet" href="tokens.css" />
+  <style>
+    body {
+      max-width: 680px;
+      margin: 48px auto;
+      padding: 0 20px 80px;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.65;
+    }
+    h1 {
+      font-family: var(--font-display);
+      font-weight: var(--wordmark-weight);
+      font-size: 26px;
+      margin-bottom: 4px;
+    }
+    .updated { color: var(--ink-faint); font-size: 13px; margin-bottom: 32px; }
+    h2 {
+      font-family: var(--font-display);
+      font-weight: var(--eyebrow-weight);
+      font-style: var(--eyebrow-style);
+      font-size: 18px;
+      color: var(--accent-strong);
+      margin-top: 36px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 8px;
+    }
+    p, li { color: var(--ink-soft); }
+    strong { color: var(--ink); }
+    code {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      background: var(--line);
+      padding: 1px 6px;
+      border-radius: 4px;
+      color: var(--ink);
+    }
+    .disclaimer {
+      border-left: 3px solid var(--accent);
+      background: var(--surface);
+      padding: 12px 16px;
+      border-radius: 0 6px 6px 0;
+      margin-bottom: 28px;
+    }
+    a { color: var(--accent-strong); }
+  </style>
+</head>
+<body>
+  <h1>Privacy Policy</h1>
+  <p class="updated">Outreach Copilot for LinkedIn · Last updated 2026-07-13</p>
+
+  <div class="disclaimer">
+    <strong>Independent tool.</strong> Outreach Copilot for LinkedIn is not
+    affiliated with, endorsed by, or sponsored by LinkedIn Corporation or
+    OpenAI. "LinkedIn" is used only to describe compatibility.
+  </div>
+
+  <h2>What this extension does</h2>
+  <p>
+    Outreach Copilot reads job-posting and hiring-contact details from
+    linkedin.com pages you're already viewing, and uses that text to draft an
+    outreach message — a connection-request note, an InMail, or a reply to a
+    job posting — written in your own voice using OpenAI.
+  </p>
+
+  <h2>What it reads</h2>
+  <p>Only on linkedin.com pages, and only when you trigger it (opening the
+    popup or panel, clicking "Re-scan," or clicking the on-page "Capture"
+    button):</p>
+  <ul>
+    <li>Job posting text: title, company name, and full description.</li>
+    <li>Hiring-team/recruiter info shown on the posting, or a profile's name,
+      headline, and About section if you're viewing their profile.</li>
+  </ul>
+  <p>It does not read your private messages, connections list, browsing
+    history, or anything outside the LinkedIn tab you're using.</p>
+
+  <h2>What it stores</h2>
+  <p>Everything below is saved with the browser's built-in
+    <code>chrome.storage.local</code> — on your device only, never synced to
+    a Google account or any server, and readable only by this extension:</p>
+  <ul>
+    <li>Your OpenAI API key and model choice.</li>
+    <li>Your name, background summary, writing samples, tone preference, and
+      style notes (set in onboarding or Settings) — used to draft in your
+      voice.</li>
+    <li>Your appearance preference (Look/Mode).</li>
+    <li>The most recently captured job description and hiring-contact info,
+      so the popup has something to show without re-scanning.</li>
+  </ul>
+  <p>You can clear all of this at any time by removing the extension, or by
+    clearing its site data via <code>chrome://extensions</code>.</p>
+
+  <h2>What it sends, and to whom</h2>
+  <p>
+    The <strong>only</strong> network request this extension makes is to
+    <code>api.openai.com</code>, and only when you click <strong>Generate
+    draft</strong>. That request contains the job/hiring-contact text
+    currently in the fields, your writing-style settings, and your OpenAI API
+    key (sent as your own authentication, the same as if you called the API
+    yourself) — sent directly from your browser to OpenAI, using your own
+    API key. Usage is billed to your OpenAI account at OpenAI's rates; this
+    extension does not bundle, proxy, resell, or have any visibility into
+    that billing.
+  </p>
+  <p>
+    Nothing is sent to the extension's developer, to LinkedIn, or to any
+    analytics or advertising service. There is no tracking, no telemetry, and
+    no third party involved besides OpenAI, and only when you explicitly
+    generate a draft.
+  </p>
+
+  <h2>Data is never sold</h2>
+  <p>No data collected or read by this extension is sold, rented, or used for
+    purposes unrelated to drafting your message — including advertising,
+    credit/lending decisions, or building user profiles.</p>
+
+  <h2>Changes to this policy</h2>
+  <p>If this policy changes, the "Last updated" date above will change too.
+    Material changes will also be reflected in the extension's version notes
+    on its
+    <a href="https://github.com/sanidhyasbalsaraf-lgtm/linkedin-copilot-extension">GitHub repository</a>.</p>
+
+  <h2>Contact</h2>
+  <p>Questions or concerns: open an issue on
+    <a href="https://github.com/sanidhyasbalsaraf-lgtm/linkedin-copilot-extension/issues">GitHub</a>.</p>
+</body>
+</html>

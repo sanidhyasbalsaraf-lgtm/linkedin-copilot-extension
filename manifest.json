@@ -1,8 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "LinkedIn Job & Outreach Copilot",
-  "version": "1.5.0",
-  "description": "Pulls the job description and hiring manager info from a LinkedIn job posting, then drafts a reply or outreach message in your own writing style using OpenAI.",
+  "name": "Outreach Copilot for LinkedIn",
+  "version": "1.6.0",
+  "description": "Independent tool, not affiliated with LinkedIn. Pulls the job description and hiring manager info from a LinkedIn job posting, then drafts a reply or outreach message in your own writing style using OpenAI.",
+  "author": "Sanidhya Balsaraf",
+  "homepage_url": "https://github.com/sanidhyasbalsaraf-lgtm/linkedin-copilot-extension",
   "permissions": ["storage", "activeTab", "scripting"],
   "host_permissions": [
     "https://www.linkedin.com/*",
@@ -16,7 +18,7 @@
   },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "LinkedIn Copilot",
+    "default_title": "Outreach Copilot for LinkedIn",
     "default_icon": {
       "16": "icons/icon16.png",
       "32": "icons/icon32.png"
